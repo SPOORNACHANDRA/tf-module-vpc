@@ -1,8 +1,8 @@
 resource "aws_vpc" "main" {
-  for_each = var.subnets
+#  for_each = var.subnets
   cidr_block = var.cidr
   tags = {
-    Name = each.key
+    Name ="dev"
   }
 }
 
