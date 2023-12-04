@@ -1,7 +1,8 @@
 resource "aws_vpc" "main" {
+  for_each = var.vpc
   cidr_block = var.cidr
   tags = {
-    Name = "dev"
+    Name = lookup(var.vpc,each.key )
   }
 }
 

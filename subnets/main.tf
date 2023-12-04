@@ -10,5 +10,3 @@ resource "aws_subnet" "main" {
 
 
 
-variable "subnets" {}
-variable "vpc_id" {}
