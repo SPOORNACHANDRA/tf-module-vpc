@@ -1,5 +1,6 @@
 resource "aws_vpc" "main" {
-  cidr_block = var.cidr
+  for_each = var.cidr
+  cidr_block = each.value["cidr"]
   tags = {
     Name = "dev"
   }
