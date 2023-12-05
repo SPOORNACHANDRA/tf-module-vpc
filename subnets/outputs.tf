@@ -8,3 +8,4 @@ output "route_table_ids" {      #for attaching igw to public subnets only
 }
 
 
+# these above are all transmitting the data
