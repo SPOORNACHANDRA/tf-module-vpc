@@ -21,11 +21,21 @@ resource "aws_internet_gateway" "igw" {
 
 resource "aws_route" "igw" {
   for_each = lookup(lookup(module.subnets,"public",null),"route_table_ids",null)
-  route_table_id            =each.value["id"]
+  route_table_id            = each.value["id"]
   destination_cidr_block    = "0.0.0.0/0"
   gateway_id = aws_internet_gateway.igw.id
 }
 
+resource "aws_eip" "ngw" {
+  for_each = lookup(lookup(module.subnets,"public",null),"subnet_ids",null)         # we need how many subnets are there those many eip
+  domain   = "vpc"
+}
+
+resource "aws_nat_gateway" "ngw" {                #how many ngw i want how many public subnets
+  for_each = lookup(lookup(module.subnets,"public",null),"subnet_ids",null)                # here we can take either output or input we taken form output
+  allocation_id = lookup(lookup(aws_eip.ngw,each.value["id"],null ),"id",null)                                  # nothing but elastic ip address
+  subnet_id     = each.value["id"]
+}
 
 output "subnet" {
   value = module.subnets      # this info we need to send roboshop-pterraform-v1 main.tf
