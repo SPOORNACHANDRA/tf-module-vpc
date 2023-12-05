@@ -14,4 +14,5 @@ resource "aws_subnet" "main" {
   vpc_id = aws_vpc.main.id
   availability_zone_id = each.value["az"]
   cidr_block = each.value["cidr"]
+  subnets = var.subnets
 }
