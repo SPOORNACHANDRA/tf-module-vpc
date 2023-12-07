@@ -3,3 +3,5 @@ variable "subnets" {} #this is a varabile recieving from the main.tf roboshop-te
 variable "default_vpc_id" {}
 variable "default_vpc_cidr" {}
 variable "default_vpc_route_table_id" {}
+#variable "tags" {}
+variable "" {}
