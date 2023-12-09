@@ -1,5 +1,6 @@
 resource "aws_vpc" "main" {         #we are consuming the variables here
   cidr_block = var.cidr
+  tags = merge(local.tags,{name="${var.env}-vpc"})
 }
 
 module "subnets" {            # we have subnets in that subnets in that subnet we have multiple subnets in that subnets we have multiple values
@@ -8,15 +9,14 @@ module "subnets" {            # we have subnets in that subnets in that subnet w
   source = "./subnets"
   subnets = each.value        # this we created becoz we have multiple subnets in that subnets we have multiple sub-subnets  we are sending the info
   vpc_id = aws_vpc.main.id
+  tags = local.tags
+  env = var.env
 }
 
 #here we can create and attach to vpc is in one shot
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
-
-  tags = {
-    Name = "main"
-  }
+  tags = merge(local.tags,{name="${var.env}-igw"})
 }
 
 resource "aws_route" "igw" {
@@ -35,6 +35,7 @@ resource "aws_nat_gateway" "ngw" {                #how many ngw i want how many 
   count = length(local.public_subnet_ids)            # here we can take either output or input we taken form output
   allocation_id = element(aws_eip.ngw.*.id,count.index)
   subnet_id     = element(local.public_subnet_ids,count.index )
+  tags = merge(local.tags,{name="${var.env}-ngw"})
 }
 
 output "subnet" {
@@ -52,6 +53,7 @@ resource "aws_vpc_peering_connection" "peering" {
   peer_vpc_id = aws_vpc.main.id
   vpc_id      = var.default_vpc_id
   auto_accept = true
+  tags = merge(local.tags,{name="${var.env}-peer"})
 }
 
 resource "aws_route" "peer" {
@@ -67,38 +69,5 @@ resource "aws_route" "default-peer-entry" {
   vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
   tags = {
     Name= "default peering connection"
-  }
-}
-
-resource "aws_instance" "main" {
-  instance_type = "t2.micro"
-  ami = "ami-03265a0778a880afb"
-  vpc_security_group_ids = [aws_security_group.allow_tls.id]
-  subnet_id = local.app_subnet_ids[0]
-}
-
-resource "aws_security_group" "allow_tls" {
-  name        = "allow_tls"
-  description = "Allow TLS inbound traffic"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    description      = "TLS from VPC"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "allow_tls"
   }
 }
