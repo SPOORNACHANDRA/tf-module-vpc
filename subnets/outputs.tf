@@ -10,6 +10,6 @@ output "route_table_ids" {      #for attaching igw to public subnets only
 # above code is written for resource "aws_route" "igw" 
 # these above are all transmitting the data
 
-output "vpc_id" {
-  value = aws_vpc.main.id
-}
+#output "subnet_cidrs" {
+#  value = aws_vpc.main.id
+#}
